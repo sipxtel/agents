@@ -1,31 +1,22 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, replace
 
 import httpx
 
-from livekit.agents import (
-    APIConnectOptions,
-    tts,
-    utils
-)
-from livekit.agents.types import (
-    DEFAULT_API_CONNECT_OPTIONS,
-    NOT_GIVEN,
-    NotGivenOr
-)
+from livekit.agents import APIConnectOptions, tts, utils
+from livekit.agents.types import DEFAULT_API_CONNECT_OPTIONS, NOT_GIVEN, NotGivenOr
+from livekit.agents.utils import is_given
+
 
 @dataclass
 class _TTSOptions:
     api_endpoint: str
     sample_rate: int
 
+
 class TTS(tts.TTS):
-    def __init__(
-        self,
-        *,
-        api_endpoint: str,
-        sample_rate: int = 16000
-    ) -> None:
+    def __init__(self, *, api_endpoint: str, sample_rate: int = 16000) -> None:
         super().__init__(
             capabilities=tts.TTSCapabilities(
                 streaming=False,
@@ -47,11 +38,7 @@ class TTS(tts.TTS):
     ) -> ChunkedStream:
         return ChunkedStream(tts=self, text=text, conn_options=conn_options)
 
-    def update_options(
-        self,
-        *,
-        api_endpoint: NotGivenOr[str] = NOT_GIVEN
-    ) -> None:
+    def update_options(self, *, api_endpoint: NotGivenOr[str] = NOT_GIVEN) -> None:
         if is_given(api_endpoint):
             self._opts.api_endpoint = api_endpoint
 
@@ -66,7 +53,6 @@ class ChunkedStream(tts.ChunkedStream):
 
     async def _run(self, output_emitter: tts.AudioEmitter) -> None:
         try:
-
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     self._opts.api_endpoint,
@@ -74,7 +60,9 @@ class ChunkedStream(tts.ChunkedStream):
                     json={"input": self._input_text},
                 )
 
-                if response.status_code == 200 and "audio/mpeg" in response.headers.get("Content-Type", ""):
+                if response.status_code == 200 and "audio/mpeg" in response.headers.get(
+                    "Content-Type", ""
+                ):
                     output_emitter.initialize(
                         request_id=utils.shortuuid(),
                         sample_rate=self._opts.sample_rate,

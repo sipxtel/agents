@@ -35,6 +35,7 @@ members = [
     "livekit-plugins-bithuman",
     "livekit-plugins-cartesia",
     "livekit-plugins-clova",
+    "livekit-plugins-coquitts",
     "livekit-plugins-deepgram",
     "livekit-plugins-elevenlabs",
     "livekit-plugins-fal",
@@ -2143,6 +2144,16 @@ requires-dist = [
     { name = "livekit-agents", editable = "livekit-agents" },
     { name = "pydub", specifier = "~=0.25.1" },
 ]
+
+[[package]]
+name = "livekit-plugins-coquitts"
+source = { editable = "livekit-plugins/livekit-plugins-coquitts" }
+dependencies = [
+    { name = "livekit-agents" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "livekit-agents", editable = "livekit-agents" }]
 
 [[package]]
 name = "livekit-plugins-deepgram"
